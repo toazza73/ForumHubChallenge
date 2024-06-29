@@ -9,5 +9,4 @@ public class ForumHubChallengeApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ForumHubChallengeApplication.class, args);
 	}
-
 }

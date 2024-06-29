@@ -7,7 +7,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-// para JPA
+// entidade JPA
 @Table(name = "topicos")
 @Entity(name = "Topico")
 @Getter

@@ -5,16 +5,15 @@ import com.alura.ForumHubChallenge.domain.curso.CursoRepository;
 import com.alura.ForumHubChallenge.domain.topico.*;
 import com.alura.ForumHubChallenge.domain.usuario.Usuario;
 import com.alura.ForumHubChallenge.domain.usuario.UsuarioRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/topicos")
@@ -30,13 +29,32 @@ public class TopicoController {
     private CursoRepository cursoRepository;
 
     @GetMapping
-    public List<Topico> listarTopicos () {
-        return topicoRepository.findAll();
+    public List<DadosListaTopicos> listarTopicos () {
+        List<Topico> topicos = topicoRepository.findAll();
+        return topicos.stream().map(topico -> new DadosListaTopicos(
+                topico.getId(),
+                topico.getTitulo(),
+                topico.getMensagem(),
+                topico.getData()
+        )).collect(Collectors.toList());
     }
 
+//    @GetMapping("/{id}")
+//    public Optional<Topico> mostrarTopicoPorId (@PathVariable Long id) {
+//        return topicoRepository.findById(id);
+//    }
+
     @GetMapping("/{id}")
-    public Optional<Topico> mostrarTopicoPorId (@PathVariable Long id) {
-        return topicoRepository.findById(id);
+    public Optional<DadosTopicoId> mostrarTopicoPorId (@PathVariable Long id) {
+        Optional<Topico> topicoId = topicoRepository.findById(id);
+        return topicoId.map(topico -> new DadosTopicoId(
+                topico.getId(),
+                topico.getTitulo(),
+                topico.getMensagem(),
+                topico.getData(),
+                topico.getAutor().getNome(),
+                topico.getStatus()
+        ));
     }
 
     @PostMapping
@@ -65,7 +83,7 @@ public class TopicoController {
 //        System.out.println(topico);
 //        System.out.println(dados);
 //
-//        var detalhes = new DadosDetalhamentoTopico(topico);
+//        var detalhes = new DadosListaTopicos(topico);
 //        System.out.println(detalhes);
 //
 //        var banco = new DadosBancoTopico(topico);
