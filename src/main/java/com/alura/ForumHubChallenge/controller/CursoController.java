@@ -24,7 +24,6 @@ public class CursoController {
     @Transactional
     public ResponseEntity registrarCurso(@RequestBody @Valid DadosCurso dados, UriComponentsBuilder uriBuilder) {
         var novoCurso = new Curso(dados);
-        //System.out.println(dados);
         cursoRepository.save(novoCurso);
 
         var uri = uriBuilder.path("/cursos/{id}").buildAndExpand(novoCurso.getId()).toUri();

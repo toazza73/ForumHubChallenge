@@ -31,20 +31,21 @@ public class TokenService {
         }
     }
 
-//    public String getSubject(String tokenJWT) {
-//        try {
-//            var algoritmo = Algorithm.HMAC256(secret);
-//            return JWT.require(algoritmo)
-//                    .withIssuer("API Voll.med")
-//                    .build()
-//                    .verify(tokenJWT)
-//                    .getSubject();
-//        } catch (JWTVerificationException exception) {
-//            throw new RuntimeException("Token JWT inválido ou expirado!");
-//        }
-//    }
+    public String getSubject(String tokenJWT) {
+        try {
+            var algoritmo = Algorithm.HMAC256(chaveSecreta);
+            return JWT.require(algoritmo)
+                    .withIssuer("Forum Hub Challenge")
+                    .build()
+                    .verify(tokenJWT)   //verifica se o token está válido
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Token JWT inválido ou expirado!");
+        }
+    }
 
     private Instant dataExpiracao() {
+
         return LocalDateTime.now().plusHours(5).toInstant(ZoneOffset.of("-03:00"));
     }
 
