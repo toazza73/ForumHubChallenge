@@ -30,7 +30,7 @@ public class UsuarioController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity registrarUsuario(@RequestBody @Valid DadosUsuario dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody @Valid DadosUsuario dados, UriComponentsBuilder uriBuilder) {
 
         var novoUsuario = new Usuario(dados);
 
@@ -39,10 +39,14 @@ public class UsuarioController {
         novoUsuario.setSenha(senhaCodificada);
         usuarioRepository.save(novoUsuario);
 
-        novoUsuario.setSenha(dados.senha());
+       // novoUsuario.setSenha(dados.senha());
+       // var uri = uriBuilder.buildAndExpand(novoUsuario.getId()).toUri();
+       // return ResponseEntity.created(uri).body(novoUsuario);
 
-        var uri = uriBuilder.buildAndExpand(novoUsuario.getId()).toUri();
-        return ResponseEntity.created(uri).body(novoUsuario);
+        DadosUsuarioId dadosUsuario = new DadosUsuarioId(
+                novoUsuario.getId(), novoUsuario.getNome(),
+                novoUsuario.getEmail());
+        return ResponseEntity.ok(dadosUsuario);
     }
 
     @GetMapping
