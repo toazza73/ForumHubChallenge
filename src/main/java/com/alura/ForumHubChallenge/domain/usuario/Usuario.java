@@ -1,6 +1,5 @@
 package com.alura.ForumHubChallenge.domain.usuario;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +25,6 @@ public class Usuario implements UserDetails {
     private String nome;
     private String email;
 
-    //@JsonProperty("password")
     @Column(name = "senha")
     private String senha;
 

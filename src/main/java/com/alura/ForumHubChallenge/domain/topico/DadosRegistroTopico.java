@@ -14,19 +14,8 @@ public record DadosRegistroTopico(
 
         @NotNull Status status,
 
-        // @NotNull DadosUsuario autor,
-
-        // @NotNull @Valid DadosCurso curso
-
         @NotNull Long autorId,
 
         @NotNull Long cursoId) {
 
-//    public Long getAutorId() {
-//        return autorId;
-//    }
-//
-//    public Long getCursoId() {
-//        return cursoId;
-//    }
 }

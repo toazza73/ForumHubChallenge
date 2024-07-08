@@ -6,6 +6,7 @@ import com.alura.ForumHubChallenge.domain.topico.*;
 import com.alura.ForumHubChallenge.domain.usuario.Usuario;
 import com.alura.ForumHubChallenge.domain.usuario.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -39,22 +40,22 @@ public class TopicoController {
         )).collect(Collectors.toList());
     }
 
-//    @GetMapping("/{id}")
-//    public Optional<Topico> mostrarTopicoPorId (@PathVariable Long id) {
-//        return topicoRepository.findById(id);
-//    }
-
     @GetMapping("/{id}")
-    public Optional<DadosTopicoId> mostrarTopicoPorId (@PathVariable Long id) {
+    public ResponseEntity<?> mostrarTopicoPorId (@PathVariable Long id) {
         Optional<Topico> topicoId = topicoRepository.findById(id);
-        return topicoId.map(topico -> new DadosTopicoId(
-                topico.getId(),
-                topico.getTitulo(),
-                topico.getMensagem(),
-                topico.getData(),
-                topico.getAutor().getNome(),
-                topico.getStatus()
-        ));
+        if (topicoId.isPresent()) {
+            DadosTopicoId dadosTopico = new DadosTopicoId(
+                    topicoId.get().getId(),
+                    topicoId.get().getTitulo(),
+                    topicoId.get().getMensagem(),
+                    topicoId.get().getData(),
+                    topicoId.get().getAutor().getNome(),
+                    topicoId.get().getStatus()
+            );
+            return ResponseEntity.ok(dadosTopico);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ID do tópico não encontrado");
+        }
     }
 
     @PostMapping
@@ -62,50 +63,54 @@ public class TopicoController {
     public ResponseEntity<Topico> registrarTopico(@RequestBody DadosRegistroTopico dados, UriComponentsBuilder uriBuilder) {
 
         // Find the user and course by their IDs
-        Usuario autor = usuarioRepository.findById(dados.autorId()) //getAutorId())
+        Usuario autor = usuarioRepository.findById(dados.autorId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-        Curso curso = cursoRepository.findById(dados.cursoId())   //getCursoId())
+        Curso curso = cursoRepository.findById(dados.cursoId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
 
         var topico = new Topico(dados);
-
-//        topico.setTitulo(dados.titulo());
-//        topico.setMensagem(dados.mensagem());
         topico.setAutor(autor);
         topico.setCurso(curso);
 
-        // Save the new Topico to the database
         topicoRepository.save(topico);
-
-
-
-
-//        System.out.println(topico);
-//        System.out.println(dados);
-//
-//        var detalhes = new DadosListaTopicos(topico);
-//        System.out.println(detalhes);
-//
-//        var banco = new DadosBancoTopico(topico);
-//        System.out.println(banco);
-
-       // topicoRepository.save(topico);
-
-        //repository.save(topico);
-        //return "registrar topico";
 
         var uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
         return ResponseEntity.created(uri).body(topico);
     }
 
-    @PutMapping
-    public String atualizarTopico() {
-        return "atualizar topico";
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> atualizarTopico(@PathVariable Long id, @RequestBody DadosAtualizacaoTopico dados) {
+        Optional<Topico> topicoOptional = topicoRepository.findById(id);
+        if (topicoOptional.isPresent()) {
+            Topico topico = topicoOptional.get();
+            topico.setTitulo(dados.titulo());
+            topico.setMensagem(dados.mensagem());
+            topico.setStatus(dados.status());
+            topicoRepository.save(topico);
+            return ResponseEntity.ok(new DadosTopicoId(
+                    topico.getId(),
+                    topico.getTitulo(),
+                    topico.getMensagem(),
+                    topico.getData(),
+                    topico.getAutor().getNome(),
+                    topico.getStatus()
+            ));
+        } else {
+            return ResponseEntity.badRequest().body("O Tópico " + id + " não existe no Banco de Dados");
+        }
     }
 
-    @DeleteMapping
-    public String deletarTopico() {
-        return "topicos deletado";
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletarTopico(@PathVariable Long id) {
+        Optional<Topico> topicoOptional = topicoRepository.findById(id);
+        if (topicoOptional.isPresent()) {
+            Topico topico = topicoOptional.get();
+            topicoRepository.delete(topico);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.badRequest().body("O Tópico " + id + " não existe no Banco de Dados");
+        }
     }
-
 }

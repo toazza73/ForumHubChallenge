@@ -3,8 +3,10 @@ package com.alura.ForumHubChallenge.controller;
 import com.alura.ForumHubChallenge.domain.curso.Curso;
 import com.alura.ForumHubChallenge.domain.curso.CursoRepository;
 import com.alura.ForumHubChallenge.domain.curso.DadosCurso;
+import com.alura.ForumHubChallenge.domain.curso.DadosCursoId;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +37,14 @@ public class CursoController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Curso> mostrarCursoPorId (@PathVariable Long id) {
-        return cursoRepository.findById(id);
+    public ResponseEntity<?> mostrarCursoPorId(@PathVariable Long id) {
+        Optional<Curso> cursoOptional = cursoRepository.findById(id);
+        if (cursoOptional.isPresent()) {
+            Curso curso = cursoOptional.get();
+            DadosCursoId dadosCurso = new DadosCursoId(curso.getId(), curso.getNome(), curso.getCategoria());
+            return ResponseEntity.ok(dadosCurso);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ID do curso não encontrado");
+        }
     }
-
-
 }
